@@ -1,0 +1,2 @@
+# handle_input_and_composition
+InputEventとCompositionEventのハンドリングをして、IME確定判定について調査するリポジトリです。
