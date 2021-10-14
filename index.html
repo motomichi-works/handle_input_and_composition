@@ -1,0 +1,77 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+/* iPhoneでフィールドにフォーカスしたときにズームするのを防止しています。 */
+input {
+  font-size: 16px ;
+}
+</style>
+</head>
+<body>
+
+<input
+  id="field"
+  type="text"
+  name="example"
+>
+<br><br><br><br><br><br>
+<div id="display">window.state.fieldValueはまだ一度も更新されていません。</div>
+
+<script>
+window.isComposing = false;
+window.state = { fieldValue: '' };
+const field = document.querySelector('#field');
+const display = document.querySelector('#display');
+
+const handleInput = function (event) {
+  console.log('event.type: ', event.type);
+  console.log('event.isComposing: ', event.isComposing);
+
+  // `window.isComposing === true`の場合はIME入力途中なので、何もせずreturnします。
+  if (window.isComposing === true) return;
+
+  // IMEを伴わない半角入力や文字削除などをしたときに実行されます。
+  if (window.isComposing === false) {
+    // ここでfieldValueの加工や、stateの更新をします。
+    setState(event.target.value);
+
+    // window.state.fieldValueを画面に描画します。
+    updateDisplay(window.state.fieldValue);
+  }
+}
+
+const handleComposition = function (event) {
+  console.log('event.type: ', event.type);
+  if (event.type === 'compositionstart') window.isComposing = true;
+  if (event.type === 'compositionend') window.isComposing = false;
+
+  // `window.isComposing === true`の場合はIME入力途中なので、何もせずreturnします。
+  if (window.isComposing === true) return;
+
+  // IME確定したときに実行されます。
+  if (event.type === 'compositionend') {
+    // ここでfieldValueの加工や、stateの更新をします。
+    setState(event.target.value);
+
+    // window.state.fieldValueを画面に描画します。
+    updateDisplay(window.state.fieldValue);
+  }
+}
+
+const setState = function (fieldValue) {
+  window.state.fieldValue = fieldValue;
+}
+
+const updateDisplay = function (fieldValue) {
+  // XSSの脆弱性があるのでこのままの状態で公開しないでください。
+  display.innerHTML = fieldValue;
+}
+
+field.addEventListener('input', handleInput);
+field.addEventListener('compositionstart', handleComposition);
+field.addEventListener('compositionend', handleComposition);
+
+</script>
+</body>
+</html>
